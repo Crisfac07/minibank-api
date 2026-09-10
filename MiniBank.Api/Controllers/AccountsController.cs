@@ -18,4 +18,20 @@ public class AccountsController : ControllerBase
         var accounts = await _accountService.GetAllAsync();
         return Ok(accounts);
     }
+
+    [HttpPost]
+    public async Task<ActionResult<Guid>> Create(CreateAccountRequestDto accountRequestDto)
+    {
+       var id = await _accountService.CreateAsync(accountRequestDto);
+       return CreatedAtAction(nameof(GetById), new{id}, id);      
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<AccountResponseDto>> GetById(Guid id)
+    {
+        var account = await _accountService.GetByIdAsync(id);
+        if(account == null)
+            return NotFound();
+        return Ok(account);
+    }
 }
