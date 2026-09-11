@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using MiniBank.Api.Application.DTOs;
 using MiniBank.Api.Application.Services;
@@ -5,13 +6,12 @@ using MiniBank.Api.Application.Services;
 namespace MiniBank.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-public class AccountsController : ControllerBase
+public class AccountsController(IAccountService accountService, 
+                                IValidator<CreateAccountRequestDto> validator
+                                ) : ControllerBase
 {
-    private readonly IAccountService _accountService;
-    public AccountsController(IAccountService accountService)
-    {
-        _accountService = accountService;
-    }
+    private readonly IAccountService _accountService = accountService;
+    private readonly IValidator<CreateAccountRequestDto> _validator = validator;
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<AccountResponseDto>>> GetAll(){
@@ -22,6 +22,12 @@ public class AccountsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> Create(CreateAccountRequestDto accountRequestDto)
     {
+        var validationResult = await _validator.ValidateAsync(accountRequestDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors);
+        }
+
        var id = await _accountService.CreateAsync(accountRequestDto);
        return CreatedAtAction(nameof(GetById), new{id}, id);      
     }

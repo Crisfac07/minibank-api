@@ -1,5 +1,7 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MiniBank.Api.Application.Services;
+using MiniBank.Api.Application.Validators;
 using MiniBank.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +13,11 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
 });
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateAccountRequestValidator>();
+
 builder.Services.AddScoped<IAccountService,AccountService>();
+
 
 builder.Services.AddOpenApi();
 
