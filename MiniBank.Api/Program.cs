@@ -2,28 +2,32 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MiniBank.Api.Application.Services;
 using MiniBank.Api.Application.Validators;
+using MiniBank.Api.Filters;
 using MiniBank.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddScoped<ValidationFilter>();
 
-builder.Services.AddDbContext<AppDbContext>(opt =>
+builder.Services.AddControllers(options =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"));
+    options.Filters.AddService<ValidationFilter>();
+});
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("SqlServerConnection"));
 });
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateAccountRequestValidator>();
 
-builder.Services.AddScoped<IAccountService,AccountService>();
-
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-app.MapControllers();
 
-// Configure the HTTP request pipeline.
+app.MapControllers();
 
 app.Run();

@@ -22,12 +22,6 @@ public class AccountsController(IAccountService accountService,
     [HttpPost]
     public async Task<ActionResult<Guid>> Create(CreateAccountRequestDto accountRequestDto)
     {
-        var validationResult = await _validator.ValidateAsync(accountRequestDto);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors);
-        }
-
        var id = await _accountService.CreateAsync(accountRequestDto);
        return CreatedAtAction(nameof(GetById), new{id}, id);      
     }
