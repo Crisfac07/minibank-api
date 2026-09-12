@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using MiniBank.Api.Application.DTOs;
+using MiniBank.Api.Application.Exceptions;
 using MiniBank.Api.Application.Services;
 
 namespace MiniBank.Api.Controllers;
@@ -34,4 +35,5 @@ public class AccountsController(IAccountService accountService,
             return NotFound();
         return Ok(account);
     }
+
 }
