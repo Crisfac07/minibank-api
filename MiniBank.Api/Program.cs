@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MiniBank.Api.Application.ErrorHandling;
+using MiniBank.Api.Application.Repositories;
 using MiniBank.Api.Application.Services;
 using MiniBank.Api.Application.Validators;
 using MiniBank.Api.Filters;
@@ -11,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<ValidationFilter>();
 builder.Services.AddScoped<IExceptionMapper, ExceptionMapper>();
+builder.Services.AddScoped<IAccountReportRepository, DapperAccountReportRepository>();
+builder.Services.AddScoped<AccountReportService>();
 
 builder.Services.AddControllers(options =>
 {
