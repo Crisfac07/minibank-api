@@ -58,6 +58,12 @@ builder.Services
     })
         ;
 
+builder.Services.AddHttpClient("JsonPlaceHolder", client=>
+{
+    client.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+builder.Services.AddScoped<ICustomerSummaryService,CustomerSummaryService>();
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionHandlingMiddleware>();

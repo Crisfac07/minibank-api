@@ -10,12 +10,14 @@ namespace MiniBank.Api.Controllers;
 [Route("api/[controller]")]
 public class AccountsController(IAccountService accountService, 
                                 IValidator<CreateAccountRequestDto> validator,
-                                AccountReportService accountReportService
+                                AccountReportService accountReportService,
+                                ICustomerSummaryService customerSummaryService
                                 ) : ControllerBase
 {
     private readonly IAccountService _accountService = accountService;
     private readonly IValidator<CreateAccountRequestDto> _validator = validator;
     private readonly AccountReportService _accountReportService = accountReportService;
+    private readonly ICustomerSummaryService _customerSummaryService = customerSummaryService;
     [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<AccountResponseDto>>> GetAll(){
@@ -47,6 +49,21 @@ public class AccountsController(IAccountService accountService,
             return NotFound();
 
         return Ok(report);
+
+    }
+
+    [HttpGet("external-summary/{userId:int}")]
+    public async Task<ActionResult<CustomerSummaryDto>> GetExternalSummary(
+        int userId,
+        CancellationToken cancellationToken
+    )
+    {
+        var summary = await _customerSummaryService.GetSummaryAsync(userId, cancellationToken);
+        if (summary is null)
+        {
+            return NotFound();
+        }
+        return Ok(summary);
 
     }
 }
