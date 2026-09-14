@@ -1,5 +1,8 @@
+using System.Text;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MiniBank.Api.Application.ErrorHandling;
 using MiniBank.Api.Application.Repositories;
 using MiniBank.Api.Application.Services;
@@ -32,8 +35,36 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddOpenApi();
 
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSection["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured");
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+          ValidateIssuer = true,
+          ValidIssuer = jwtSection["Issuer"],
+
+          ValidateAudience = true,
+          ValidAudience = jwtSection["Audience"],
+
+          ValidateLifetime = true,
+
+          ValidateIssuerSigningKey = true,
+          IssuerSigningKey = 
+          new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))  
+        };
+    })
+        ;
+
+
 var app = builder.Build();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

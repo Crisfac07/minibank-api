@@ -1,8 +1,8 @@
 using System;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniBank.Api.Application.DTOs;
-using MiniBank.Api.Application.Exceptions;
 using MiniBank.Api.Application.Services;
 
 namespace MiniBank.Api.Controllers;
@@ -16,7 +16,7 @@ public class AccountsController(IAccountService accountService,
     private readonly IAccountService _accountService = accountService;
     private readonly IValidator<CreateAccountRequestDto> _validator = validator;
     private readonly AccountReportService _accountReportService = accountReportService;
-
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<AccountResponseDto>>> GetAll(){
         var accounts = await _accountService.GetAllAsync();
